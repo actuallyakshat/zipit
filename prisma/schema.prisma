@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id        Int      @id @default(autoincrement())
+  roomid    String   @unique
+  files     File[]
+  createdAt DateTime @default(now())
+}
+
+model File {
+  id              Int      @id @default(autoincrement())
+  mediaId         String
+  roomId          Int
+  mediaAccessLink String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  Room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+}
