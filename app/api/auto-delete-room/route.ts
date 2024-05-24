@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db";
 
-export async function autoDeleteRoom(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
     const tenMinutesAgo = new Date(Date.now() - 10 * 1000);
 
