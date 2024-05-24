@@ -1,16 +1,38 @@
 import React from "react";
+import { deleteRoom } from "../_actions/actions";
+import { useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function CloseRoomModal({
   showCloseRoomModal,
+  roomId,
   setShowCloseRoomModal,
 }: {
   showCloseRoomModal: boolean;
+  roomId: string;
   setShowCloseRoomModal: (value: boolean) => void;
 }) {
-  const submitHandler = (e: any) => {
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState<string>("");
+  const router = useRouter();
+  const submitHandler = async (e: any) => {
     e.preventDefault();
-    console.log("Closing Room");
-    setShowCloseRoomModal(false);
+    try {
+      setLoading(true);
+      toast.loading("Closing room", { id: "close-room" });
+      await deleteRoom(roomId);
+      setLoading(false);
+      toast.success("Room closed", { id: "close-room" });
+      setShowCloseRoomModal(false);
+      router.push("/");
+    } catch (e: any) {
+      console.log("error", e);
+      setError(e.message);
+      toast.error(e.message, { id: "close-room" });
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!showCloseRoomModal) return null;
@@ -37,9 +59,9 @@ export default function CloseRoomModal({
           </button>
           <button
             onClick={(e) => submitHandler(e)}
-            className="destrutive-button"
+            className="destructive-button"
           >
-            Close
+            {!loading ? "Close" : <LoaderCircle className="animate-spin" />}
           </button>
         </div>
       </div>

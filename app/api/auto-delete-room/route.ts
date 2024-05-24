@@ -5,6 +5,7 @@ import { Room } from "@prisma/client";
 export async function GET(req: NextRequest) {
   try {
     const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+    console.log("tenMinutesAgo", tenMinutesAgo);
 
     const expiredRooms = await prisma.room.findMany({
       where: {
@@ -14,6 +15,8 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    console.log("expiredRooms", expiredRooms);
+
     const roomIds = expiredRooms.map((room: Room) => room.id);
     await prisma.room.deleteMany({
       where: {
@@ -22,6 +25,7 @@ export async function GET(req: NextRequest) {
         },
       },
     });
+    console.log("roomIds", roomIds);
     return NextResponse.json(
       { message: "Expired rooms deleted." },
       { status: 200 },

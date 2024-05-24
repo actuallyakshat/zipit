@@ -1,4 +1,8 @@
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect } from "react";
+import { checkRoomExists } from "../_actions/actions";
+import { LoaderCircle } from "lucide-react";
+import toast from "react-hot-toast";
 
 export default function JoinRoomModal({
   showJoinRoomModal,
@@ -7,11 +11,36 @@ export default function JoinRoomModal({
   showJoinRoomModal: boolean;
   setShowJoinRoomModal: (value: boolean) => void;
 }) {
-  const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+  const ref = React.useRef<HTMLInputElement>(null);
+  const [roomCode, setRoomCode] = React.useState("");
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(false);
+  const router = useRouter();
+
+  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Joining Room");
-    setShowJoinRoomModal(false);
+
+    try {
+      setLoading(true);
+      toast.loading("Checking room code", { id: "find-room" });
+      const room = await checkRoomExists(roomCode);
+      if (room) {
+        toast.success("Joining Room", { id: "find-room" });
+        router.push(`/${roomCode}`);
+      }
+    } catch (e: any) {
+      toast.error(e.message, { id: "find-room" });
+      console.log(e);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  useEffect(() => {
+    if (showJoinRoomModal && ref.current) {
+      ref.current?.focus();
+    }
+  }, [showJoinRoomModal, ref]);
 
   if (!showJoinRoomModal) return null;
 
@@ -29,21 +58,30 @@ export default function JoinRoomModal({
           Enter the code to join the room.
         </h4>
         <form className="my-4" onSubmit={(e) => submitHandler(e)}>
+          {error && (
+            <p className="text-sm font-medium text-red-500">
+              Room code not found
+            </p>
+          )}
           <input
             type="text"
             placeholder="Room Code"
+            ref={ref}
+            onChange={(e) => setRoomCode(e.target.value)}
             className="w-full rounded-lg border px-2 py-2 text-sm placeholder:font-medium"
           />
 
           <div className="mt-4 flex w-full items-center justify-end gap-3">
             <button
               className="secondary-button"
+              type="button"
+              disabled={loading}
               onClick={() => setShowJoinRoomModal(false)}
             >
               Cancel
             </button>
-            <button className="primary-button" type="submit">
-              Join
+            <button className="primary-button" type="submit" disabled={loading}>
+              {!loading ? "Join" : <LoaderCircle className="animate-spin" />}
             </button>
           </div>
         </form>

@@ -52,3 +52,48 @@ export async function getRoomDetails(roomId: string) {
     throw e;
   }
 }
+
+export async function checkRoomExists(roomId: string) {
+  try {
+    if (!roomId) {
+      throw new Error("Room id is required");
+    }
+    const room = await prisma.room.findFirst({
+      where: {
+        roomid: roomId,
+      },
+    });
+    if (!room) {
+      throw new Error("Room not found");
+    }
+    return true;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
+
+export async function deleteRoom(roomId: string) {
+  try {
+    if (!roomId) {
+      throw new Error("Room id is required");
+    }
+    const room = await prisma.room.findFirst({
+      where: {
+        roomid: roomId,
+      },
+    });
+    if (!room) {
+      throw new Error("Room not found");
+    }
+    await prisma.room.delete({
+      where: {
+        roomid: roomId,
+      },
+    });
+    return true;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
