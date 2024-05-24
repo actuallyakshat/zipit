@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getRoomDetails } from "../_actions/actions";
 import Loading from "./loading";
 import { Copy } from "lucide-react";
+import toast from "react-hot-toast";
 export default function Room({ params }: { params: { room_id: string } }) {
   const decodedRoomId = decodeURIComponent(params.room_id);
   const [showCloseRoomModal, setShowCloseRoomModal] = React.useState(false);
@@ -52,11 +53,14 @@ export default function Room({ params }: { params: { room_id: string } }) {
                 >{`${urlPrefix}${params.room_id}`}</Link>
               </h3>
               <button
-                onClick={() =>
-                  navigator.clipboard.writeText(`${urlPrefix}${params.room_id}`)
-                }
+                onClick={() => {
+                  toast.success("Copied to clipboard");
+                  navigator.clipboard.writeText(
+                    `${urlPrefix}${params.room_id}`,
+                  );
+                }}
               >
-                <Copy className="size-5" />
+                <Copy className="size-5 transition-colors hover:text-black/60" />
               </button>
             </div>
           </div>

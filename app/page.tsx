@@ -1,4 +1,9 @@
-import { LockIcon, UserIcon, WaypointsIcon } from "lucide-react";
+import {
+  ArrowRightIcon,
+  LockIcon,
+  UserIcon,
+  WaypointsIcon,
+} from "lucide-react";
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
 import Modals from "./_components/Modals";
@@ -32,7 +37,10 @@ export default function Home() {
       <Navbar />
       <div className="flex flex-col items-center justify-center">
         <div className="">
-          <h1 className="max-w-xl text-center text-5xl font-extrabold leading-none tracking-tight text-blue-950 lg:text-6xl">
+          <span className="mx-auto flex w-fit items-center gap-2 rounded-full border border-primary/30 px-4 py-2 font-mono text-sm font-medium backdrop-blur-sm">
+            It&apos;s completely free!
+          </span>
+          <h1 className="mt-2 max-w-xl text-center text-5xl font-extrabold leading-none tracking-tight text-blue-950 lg:text-6xl">
             <span className="text-primary">Share files</span> without losing
             quality
           </h1>
