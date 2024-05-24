@@ -4,7 +4,7 @@ import { Room } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
-    const tenMinutesAgo = new Date(Date.now() - 10 * 1000);
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
     const expiredRooms = await prisma.room.findMany({
       where: {
