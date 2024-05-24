@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db";
+import { Room } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -13,7 +14,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const roomIds = expiredRooms.map((room) => room.id);
+    const roomIds = expiredRooms.map((room: Room) => room.id);
     await prisma.room.deleteMany({
       where: {
         id: {
