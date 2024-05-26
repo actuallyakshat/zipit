@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db";
 import { Room } from "@prisma/client";
-
+export const revalidate = 0;
 export async function GET(req: NextRequest) {
   try {
     const tenMinutesAgo = new Date(Date.now() - 1 * 60 * 1000);
@@ -37,10 +37,19 @@ export async function GET(req: NextRequest) {
       {
         message: "Expired rooms deleted.",
         expiredRooms: expiredRooms,
-        roomId: roomIds,
+        roomIds: roomIds,
       },
       { status: 200 },
     );
+
+    // Set headers to disable caching
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+    response.headers.set("Surrogate-Control", "no-store");
 
     return response;
   } catch (error) {
@@ -49,6 +58,16 @@ export async function GET(req: NextRequest) {
       { error: "Internal server error" },
       { status: 500 },
     );
+
+    // Set headers to disable caching
+    response.headers.set(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+    response.headers.set("Pragma", "no-cache");
+    response.headers.set("Expires", "0");
+    response.headers.set("Surrogate-Control", "no-store");
+
     return response;
   }
 }
