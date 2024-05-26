@@ -14,7 +14,7 @@ export default function JoinRoomModal({
   const ref = React.useRef<HTMLInputElement>(null);
   const [roomCode, setRoomCode] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState(false);
+  const [error, setError] = React.useState("");
   const router = useRouter();
 
   const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -30,6 +30,7 @@ export default function JoinRoomModal({
       }
     } catch (e: any) {
       toast.error(e.message, { id: "find-room" });
+      setError(e.message);
       console.log(e);
     } finally {
       setLoading(false);
@@ -38,6 +39,7 @@ export default function JoinRoomModal({
 
   useEffect(() => {
     if (showJoinRoomModal && ref.current) {
+      setError("");
       ref.current?.focus();
     }
   }, [showJoinRoomModal, ref]);
@@ -59,9 +61,7 @@ export default function JoinRoomModal({
         </h4>
         <form className="my-4" onSubmit={(e) => submitHandler(e)}>
           {error && (
-            <p className="text-sm font-medium text-red-500">
-              Room code not found
-            </p>
+            <p className="mb-1 text-sm font-medium text-red-500">{error}</p>
           )}
           <input
             type="number"

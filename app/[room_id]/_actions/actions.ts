@@ -141,3 +141,20 @@ export async function deleteRoom(roomId: number) {
     throw e;
   }
 }
+
+export async function checkBeforeUpload(roomId: number) {
+  try {
+    const existingRoom = await prisma.room.findFirst({
+      where: {
+        roomId: roomId,
+      },
+    });
+    if (!existingRoom) {
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}
