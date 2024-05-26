@@ -39,7 +39,7 @@ export default function CloseRoomModal({
   return (
     <div
       onClick={() => setShowCloseRoomModal(false)}
-      className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6 backdrop-blur-sm"
     >
       <div
         onClick={(e) => e.stopPropagation()}

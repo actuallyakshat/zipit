@@ -32,8 +32,6 @@ export async function appendUploadedFile(roomId: number, files: File[]) {
       })),
     });
 
-    console.log("Created files:", createdFiles);
-
     return createdFiles;
   } catch (e: any) {
     console.log(e.message);
@@ -64,7 +62,6 @@ export async function refreshRoomFiles(roomId: number) {
 
 export async function getRoomDetails(roomId: number) {
   try {
-    console.log("roomId", typeof roomId);
     if (!roomId) {
       throw new Error("Room id is required");
     }

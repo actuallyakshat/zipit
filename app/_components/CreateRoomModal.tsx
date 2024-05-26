@@ -24,7 +24,6 @@ export default function CreateRoomModal({
       const newRoom = await createRoom();
       setRoomCode(newRoom.roomId);
       toast.success("Room created");
-      console.log("new room", newRoom);
       setSuccess(true);
       router.push(`/${newRoom.roomId}`);
     } catch (e: any) {
@@ -50,11 +49,11 @@ export default function CreateRoomModal({
   return (
     <div
       onClick={() => setShowCreateRoomModal(false)}
-      className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-8 backdrop-blur-sm"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="modal-content w-full max-w-lg rounded-lg bg-white p-4"
+        className="modal-content w-full max-w-lg rounded-lg bg-white p-4 px-8"
       >
         {!success ? (
           <>

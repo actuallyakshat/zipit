@@ -23,11 +23,9 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
   async function getDetails() {
     try {
-      console.log("roomId", typeof roomId);
       const room = await getRoomDetails(roomId as number);
       setRoomDetails(room);
       setFiles(room.files);
-      console.log(room);
     } catch (e) {
       console.log(e);
     }
@@ -35,11 +33,9 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
   async function handleUploadComplete(data: any) {
     try {
-      console.log("data", data);
       const files = await appendUploadedFile(roomId, data);
       const newFiles = await refreshRoomFiles(roomId);
       setFiles(newFiles);
-      console.log("files", files);
     } catch (e) {
       console.log(e);
     }
@@ -85,14 +81,14 @@ export default function Room({ params }: { params: { room_id: number } }) {
   return (
     <div className="appbg min-h-screen w-full">
       <div className="mx-auto max-w-screen-xl pt-24 text-center">
-        <h1 className="text-5xl font-extrabold">Zipit</h1>
+        <h1 className="text-5xl font-black">Zipit</h1>
         <div className="flex w-full flex-col items-center justify-center rounded-lg px-4 pb-8 pt-3">
           <h2 className="mb-3 text-lg font-medium text-zinc-500">
             {remainingTime}
           </h2>
-          <div className="w-fit rounded-xl border bg-gray-50/80 px-4 py-4">
-            <h3 className="text-start font-medium">Room Code: {roomId}</h3>
-            <div className="flex w-full items-center justify-center gap-2">
+          <div className="w-full max-w-sm rounded-xl border-4 border-dotted border-zinc-300 bg-gray-50/60 px-4 py-4 text-start">
+            <h3 className="font-medium">Room Code: {roomId}</h3>
+            <div className="flex w-full items-center gap-2">
               <h3 className="font-medium">
                 URL:{" "}
                 <Link
@@ -112,12 +108,14 @@ export default function Room({ params }: { params: { room_id: number } }) {
                 <Copy className="size-4 transition-colors hover:text-black/60" />
               </button>
             </div>
-            <button
-              onClick={() => setShowCloseRoomModal(true)}
-              className="destructive-button mt-3"
-            >
-              Close room
-            </button>
+            <div className="flex w-full justify-center">
+              <button
+                onClick={() => setShowCloseRoomModal(true)}
+                className="mx-auto mt-3 text-sm font-medium text-red-600 hover:underline"
+              >
+                Close room
+              </button>
+            </div>
             <CloseRoomModal
               roomId={roomId}
               showCloseRoomModal={showCloseRoomModal}
@@ -148,7 +146,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
           />
         </div>
       </div>
-      <div className="container mx-auto">
+      <div className="container mx-auto mt-5 px-4">
         <h2 className="mb-3 text-3xl font-extrabold">Files</h2>
         {files.length == 0 && (
           <p className="text-lg font-medium text-zinc-600">
@@ -156,7 +154,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
           </p>
         )}
         {files.length > 0 && (
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2 pb-16 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {files.map((file) => (
               <FileCard
                 key={file.id}

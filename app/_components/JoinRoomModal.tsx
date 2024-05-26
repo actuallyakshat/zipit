@@ -12,7 +12,7 @@ export default function JoinRoomModal({
   setShowJoinRoomModal: (value: boolean) => void;
 }) {
   const ref = React.useRef<HTMLInputElement>(null);
-  const [roomCode, setRoomCode] = React.useState("");
+  const [roomCode, setRoomCode] = React.useState<number>(0);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState(false);
   const router = useRouter();
@@ -47,7 +47,7 @@ export default function JoinRoomModal({
   return (
     <div
       onClick={() => setShowJoinRoomModal(false)}
-      className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+      className="modal-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-6 backdrop-blur-sm"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -64,10 +64,10 @@ export default function JoinRoomModal({
             </p>
           )}
           <input
-            type="text"
+            type="number"
             placeholder="Room Code"
             ref={ref}
-            onChange={(e) => setRoomCode(e.target.value)}
+            onChange={(e) => setRoomCode(Number(e.target.value))}
             className="w-full rounded-lg border px-2 py-2 text-sm placeholder:font-medium"
           />
 
