@@ -10,7 +10,7 @@ export default function CloseRoomModal({
   setShowCloseRoomModal,
 }: {
   showCloseRoomModal: boolean;
-  roomId: string;
+  roomId: number;
   setShowCloseRoomModal: (value: boolean) => void;
 }) {
   const [loading, setLoading] = React.useState(false);

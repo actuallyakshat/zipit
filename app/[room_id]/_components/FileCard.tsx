@@ -11,7 +11,7 @@ export default function FileCard({
   setFiles,
 }: {
   file: any;
-  roomId: string;
+  roomId: number;
   setFiles: (files: any[]) => void;
 }) {
   const [deleteLoading, setDeleteLoading] = React.useState(false);

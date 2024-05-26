@@ -1,7 +1,7 @@
 -- CreateTable
 CREATE TABLE "Room" (
     "id" SERIAL NOT NULL,
-    "roomid" TEXT NOT NULL,
+    "roomId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Room_pkey" PRIMARY KEY ("id")
@@ -22,7 +22,7 @@ CREATE TABLE "File" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Room_roomid_key" ON "Room"("roomid");
+CREATE UNIQUE INDEX "Room_roomId_key" ON "Room"("roomId");
 
 -- AddForeignKey
 ALTER TABLE "File" ADD CONSTRAINT "File_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE CASCADE ON UPDATE CASCADE;

@@ -9,7 +9,7 @@ datasource db {
 
 model Room {
   id        Int      @id @default(autoincrement())
-  roomid    String   @unique
+  roomId    Int      @unique
   files     File[]
   createdAt DateTime @default(now())
 }

@@ -11,21 +11,22 @@ export default function CreateRoomModal({
   showCreateRoomModal: boolean;
   setShowCreateRoomModal: (value: boolean) => void;
 }) {
-  const [roomCode, setRoomCode] = React.useState("");
+  const [roomCode, setRoomCode] = React.useState<number>(0);
+  const [success, setSuccess] = React.useState(false);
   const ref = React.useRef<HTMLInputElement>(null);
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
   const [error, setError] = React.useState("");
 
-  const submitHandler = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const createRoomHandler = async () => {
     setLoading(true);
     try {
-      const newRoom = await createRoom(roomCode);
-
+      const newRoom = await createRoom();
+      setRoomCode(newRoom.roomId);
       toast.success("Room created");
       console.log("new room", newRoom);
-      router.push(`/${newRoom.roomid}`);
+      setSuccess(true);
+      router.push(`/${newRoom.roomId}`);
     } catch (e: any) {
       console.log("error", e);
       setError(e.message);
@@ -55,39 +56,44 @@ export default function CreateRoomModal({
         onClick={(e) => e.stopPropagation()}
         className="modal-content w-full max-w-lg rounded-lg bg-white p-4"
       >
-        <h1 className="text-2xl font-bold">Create Room</h1>
-        <h4 className="text-sm text-zinc-500">
-          Assign a code to your room to allow other devices to join
-        </h4>
-        <form className="my-4" onSubmit={submitHandler}>
-          {error && (
-            <p className="mb-1 text-sm font-medium text-red-500">{error}</p>
-          )}
-          <input
-            type="text"
-            placeholder="Room Code"
-            ref={ref}
-            onChange={(e) => setRoomCode(e.target.value)}
-            className="w-full rounded-lg border px-2 py-2 text-sm placeholder:font-medium"
-          />
-          <p className="py-1 pl-1 text-sm font-medium text-zinc-500">
-            Try to use a unique code to prevent unauthorized access
-          </p>
-
-          <div className="mt-4 flex w-full items-center justify-end gap-3">
-            <button
-              type="button"
-              className="secondary-button"
-              onClick={() => setShowCreateRoomModal(false)}
-              disabled={loading}
-            >
-              Cancel
-            </button>
-            <button type="submit" className="primary-button" disabled={loading}>
-              {!loading ? "Create" : <LoaderCircle className="animate-spin" />}
-            </button>
+        {!success ? (
+          <>
+            <h1 className="text-2xl font-bold">Create Room</h1>
+            <h4 className="text-sm text-zinc-500">
+              Assign a code to your room to allow other devices to join
+            </h4>
+            <div className="mt-4 flex w-full items-center justify-end gap-3">
+              <button
+                className="secondary-button"
+                onClick={() => setShowCreateRoomModal(false)}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={createRoomHandler}
+                className="primary-button"
+                disabled={loading}
+              >
+                {!loading ? (
+                  "Create"
+                ) : (
+                  <LoaderCircle className="animate-spin" />
+                )}
+              </button>
+            </div>
+          </>
+        ) : (
+          <div>
+            <h1 className="text-2xl font-bold">Room created</h1>
+            <h4 className="text-sm text-zinc-500">
+              You will be redirected to the room page shortly
+            </h4>
+            <h2 className="mb-3 mt-6 text-center text-2xl font-extrabold">
+              Room Code: {roomCode}
+            </h2>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );

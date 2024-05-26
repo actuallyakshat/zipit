@@ -10,11 +10,11 @@ interface File {
 
 const utapi = new UTApi();
 
-export async function appendUploadedFile(roomId: string, files: File[]) {
+export async function appendUploadedFile(roomId: number, files: File[]) {
   try {
     // Check if the room exists
     const existingRoom = await prisma.room.findUnique({
-      where: { roomid: roomId },
+      where: { roomId: roomId },
     });
 
     if (!existingRoom) {
@@ -41,10 +41,10 @@ export async function appendUploadedFile(roomId: string, files: File[]) {
   }
 }
 
-export async function refreshRoomFiles(roomId: string) {
+export async function refreshRoomFiles(roomId: number) {
   try {
     const room = await prisma.room.findUnique({
-      where: { roomid: roomId },
+      where: { roomId: roomId },
     });
 
     if (!room) {
@@ -62,14 +62,15 @@ export async function refreshRoomFiles(roomId: string) {
   }
 }
 
-export async function getRoomDetails(roomId: string) {
+export async function getRoomDetails(roomId: number) {
   try {
+    console.log("roomId", typeof roomId);
     if (!roomId) {
       throw new Error("Room id is required");
     }
     const room = await prisma.room.findFirst({
       where: {
-        roomid: roomId,
+        roomId: roomId as number,
       },
       include: {
         files: true,
@@ -108,14 +109,14 @@ export async function deleteFile(fileIds: string[]) {
   }
 }
 
-export async function deleteRoom(roomId: string) {
+export async function deleteRoom(roomId: number) {
   try {
     if (!roomId) {
       throw new Error("Room id is required");
     }
     const room = await prisma.room.findFirst({
       where: {
-        roomid: roomId,
+        roomId: roomId,
       },
     });
     if (!room) {
@@ -133,7 +134,7 @@ export async function deleteRoom(roomId: string) {
     await utapi.deleteFiles(fileIds);
     await prisma.room.delete({
       where: {
-        roomid: roomId,
+        roomId: roomId,
       },
     });
 

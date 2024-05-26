@@ -1,18 +1,26 @@
 "use server";
 
 import prisma from "@/db";
+import generateSixDigitRandomNumber from "@/utils/generateRoomCode";
 
-export async function createRoom(roomCode: string) {
+export async function createRoom() {
   try {
-    if (!roomCode) {
-      throw new Error("Room code is required");
+    let roomCode;
+    while (true) {
+      roomCode = generateSixDigitRandomNumber();
+      const existingRoom = await prisma.room.findFirst({
+        where: {
+          roomId: roomCode,
+        },
+      });
+      if (!existingRoom) {
+        break;
+      }
     }
-    if (roomCode.length < 4) {
-      throw new Error("Room code must be at least 4 characters");
-    }
+
     const existingRoom = await prisma.room.findFirst({
       where: {
-        roomid: roomCode,
+        roomId: roomCode,
       },
     });
     if (existingRoom) {
@@ -20,7 +28,7 @@ export async function createRoom(roomCode: string) {
     }
     const newRoom = await prisma.room.create({
       data: {
-        roomid: roomCode,
+        roomId: roomCode,
       },
     });
     return newRoom;
@@ -30,14 +38,14 @@ export async function createRoom(roomCode: string) {
   }
 }
 
-export async function checkRoomExists(roomId: string) {
+export async function checkRoomExists(roomId: number) {
   try {
     if (!roomId) {
       throw new Error("Room id is required");
     }
     const room = await prisma.room.findFirst({
       where: {
-        roomid: roomId,
+        roomId: roomId,
       },
     });
     if (!room) {

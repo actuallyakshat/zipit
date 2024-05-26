@@ -13,19 +13,18 @@ import {
 } from "./_actions/actions";
 import FileCard from "./_components/FileCard";
 
-export default function Room({ params }: { params: { room_id: string } }) {
-  const decodedRoomId = decodeURIComponent(params.room_id);
-
+export default function Room({ params }: { params: { room_id: number } }) {
+  const [roomId, setRoomId] = React.useState<number>(Number(params.room_id));
   const [showCloseRoomModal, setShowCloseRoomModal] = React.useState(false);
   const [roomDetails, setRoomDetails] = React.useState<any>(null);
   const [remainingTime, setRemainingTime] = React.useState("00:00");
   const urlPrefix = "https://justzipit.vercel.app/";
-  const [roomId, setRoomId] = React.useState(decodedRoomId);
   const [files, setFiles] = React.useState<any[]>([]);
 
   async function getDetails() {
     try {
-      const room = await getRoomDetails(roomId);
+      console.log("roomId", typeof roomId);
+      const room = await getRoomDetails(roomId as number);
       setRoomDetails(room);
       setFiles(room.files);
       console.log(room);
@@ -97,19 +96,17 @@ export default function Room({ params }: { params: { room_id: string } }) {
               <h3 className="font-medium">
                 URL:{" "}
                 <Link
-                  href={`${urlPrefix}${params.room_id}`}
+                  href={`${urlPrefix}${roomId}`}
                   target="_blank"
                   className="hover:underline"
                 >
-                  {`${urlPrefix}${params.room_id}`}
+                  {`${urlPrefix}${roomId}`}
                 </Link>
               </h3>
               <button
                 onClick={() => {
                   toast.success("Copied to clipboard");
-                  navigator.clipboard.writeText(
-                    `${urlPrefix}${params.room_id}`,
-                  );
+                  navigator.clipboard.writeText(`${urlPrefix}${roomId}`);
                 }}
               >
                 <Copy className="size-4 transition-colors hover:text-black/60" />
@@ -171,19 +168,6 @@ export default function Room({ params }: { params: { room_id: string } }) {
           </div>
         )}
       </div>
-      {/* <div className="mt-20 flex w-full items-center justify-center">
-        <button
-          onClick={() => setShowCloseRoomModal(true)}
-          className="destructive-button mt-6"
-        >
-          Close room
-        </button>
-        <CloseRoomModal
-          roomId={roomId}
-          showCloseRoomModal={showCloseRoomModal}
-          setShowCloseRoomModal={setShowCloseRoomModal}
-        />
-      </div> */}
     </div>
   );
 }
