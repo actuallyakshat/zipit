@@ -1,8 +1,8 @@
 import React from "react";
-import { deleteRoom } from "../_actions/actions";
 import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
+import { deleteRoom } from "./_actions/actions";
 
 export default function CloseRoomModal({
   showCloseRoomModal,

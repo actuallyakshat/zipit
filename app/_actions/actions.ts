@@ -30,29 +30,6 @@ export async function createRoom(roomCode: string) {
   }
 }
 
-export async function getRoomDetails(roomId: string) {
-  try {
-    if (!roomId) {
-      throw new Error("Room id is required");
-    }
-    const room = await prisma.room.findFirst({
-      where: {
-        roomid: roomId,
-      },
-      include: {
-        files: true,
-      },
-    });
-    if (!room) {
-      throw new Error("Room not found");
-    }
-    return room;
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-}
-
 export async function checkRoomExists(roomId: string) {
   try {
     if (!roomId) {
@@ -66,31 +43,6 @@ export async function checkRoomExists(roomId: string) {
     if (!room) {
       throw new Error("Room not found");
     }
-    return true;
-  } catch (e) {
-    console.log(e);
-    throw e;
-  }
-}
-
-export async function deleteRoom(roomId: string) {
-  try {
-    if (!roomId) {
-      throw new Error("Room id is required");
-    }
-    const room = await prisma.room.findFirst({
-      where: {
-        roomid: roomId,
-      },
-    });
-    if (!room) {
-      throw new Error("Room not found");
-    }
-    await prisma.room.delete({
-      where: {
-        roomid: roomId,
-      },
-    });
     return true;
   } catch (e) {
     console.log(e);

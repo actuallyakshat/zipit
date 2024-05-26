@@ -3,17 +3,17 @@ import { UploadThingError } from "uploadthing/server";
 
 const f = createUploadthing();
 
-const auth = (req: Request) => ({ id: "fakeId" }); // Fake auth function
+const auth = (req: Request) => ({ id: "zipituser" }); // Fake auth function
 
 // FileRouter for your app, can contain multiple FileRoutes
 export const ourFileRouter = {
   // Define as many FileRoutes as you like, each with a unique routeSlug
 
   allFilesUploader: f({
-    image: { maxFileSize: "512MB" },
-    video: { maxFileSize: "512MB" },
-    audio: { maxFileSize: "512MB" },
-    blob: { maxFileSize: "512MB" },
+    image: { maxFileSize: "128MB", maxFileCount: 10 },
+    video: { maxFileSize: "512MB", maxFileCount: 2 },
+    audio: { maxFileSize: "128MB", maxFileCount: 3 },
+    blob: { maxFileSize: "256MB", maxFileCount: 5 },
   })
     // Set permissions and file types for this FileRoute
     .middleware(async ({ req }) => {
