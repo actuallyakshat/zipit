@@ -132,31 +132,6 @@ export default function Room({ params }: { params: { room_id: number } }) {
     };
   }, [roomId, files]);
 
-  useEffect(() => {
-    const channel = supabase
-      .channel("room-number-" + roomId)
-      .on(
-        "postgres_changes",
-        {
-          event: "DELETE",
-          schema: "public",
-          table: "Room",
-        },
-        (payload) => {
-          console.log("room deleted", payload);
-          if (payload.old.roomId == roomId) {
-            router.replace("/");
-            return;
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [roomId, router]);
-
   if (!roomDetails) {
     return <Loading />;
   }
