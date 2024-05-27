@@ -28,8 +28,10 @@ export default function CloseRoomModal({
       router.push("/");
     } catch (e: any) {
       console.log("error", e);
-      setError(e.message);
-      toast.error(e.message, { id: "close-room" });
+      setError("Something went wrong");
+      toast.error("We couldn't close the room.", {
+        id: "close-room",
+      });
     } finally {
       setLoading(false);
     }

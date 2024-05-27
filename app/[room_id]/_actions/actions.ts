@@ -74,7 +74,9 @@ export async function getRoomDetails(roomId: number) {
       },
     });
     if (!room) {
-      throw new Error("Room not found");
+      // throw new Error("Room not found");
+      console.error("Room not found");
+      return null;
     }
     return room;
   } catch (e) {

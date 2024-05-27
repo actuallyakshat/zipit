@@ -17,15 +17,6 @@ export async function createRoom() {
         break;
       }
     }
-
-    const existingRoom = await prisma.room.findFirst({
-      where: {
-        roomId: roomCode,
-      },
-    });
-    if (existingRoom) {
-      throw new Error("Code already in use.");
-    }
     const newRoom = await prisma.room.create({
       data: {
         roomId: roomCode,

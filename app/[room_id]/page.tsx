@@ -27,12 +27,17 @@ export default function Room({ params }: { params: { room_id: number } }) {
   async function getDetails() {
     try {
       const room = await getRoomDetails(roomId as number);
+      if (!room) {
+        router.replace("/");
+        return;
+      }
       setRoomDetails(room);
       setFiles(room.files);
     } catch (e: any) {
       console.log(e);
-      toast.error(e.message, { id: "room-details" });
-      if (e.message === "Room not found") router.replace("/");
+      toast.error("Something went wrong. Are you sure this room exists?", {
+        id: "room-details",
+      });
     }
   }
 

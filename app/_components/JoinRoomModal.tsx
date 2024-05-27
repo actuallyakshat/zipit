@@ -29,8 +29,10 @@ export default function JoinRoomModal({
         router.push(`/${roomCode}`);
       }
     } catch (e: any) {
-      toast.error(e.message, { id: "find-room" });
-      setError(e.message);
+      toast.error("We couldn't join this room. Are you sure it exists?", {
+        id: "find-room",
+      });
+      setError("Something went wrong.");
       console.log(e);
     } finally {
       setLoading(false);
