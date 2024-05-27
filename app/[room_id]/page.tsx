@@ -14,6 +14,7 @@ import {
 } from "./_actions/actions";
 import FileCard from "./_components/FileCard";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/supabase";
 
 export default function Room({ params }: { params: { room_id: number } }) {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
     try {
       const room = await getRoomDetails(roomId as number);
       if (!room) {
+        toast.error("Room does not exists", { id: "room-details" });
         router.replace("/");
         return;
       }
@@ -46,7 +48,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
       const files = await appendUploadedFile(roomId, data);
       const newFiles = await refreshRoomFiles(roomId);
       setFiles(newFiles);
-      toast.success("File uploaded successfully", { id: "upload" });
+      toast.success("File uploaded successfully", { id: "upload-files" });
     } catch (e) {
       console.log(e);
     }
@@ -54,10 +56,11 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
   async function checkExistence(files: any[]) {
     try {
+      toast.loading("Checking room's validity...", { id: "upload-files" });
       const check = await checkBeforeUpload(roomId);
       if (check) return files;
       else {
-        toast.error("Room does not exists anymore", { id: "upload" });
+        toast.error("Room does not exists anymore", { id: "upload-files" });
         router.replace("/");
         return [];
       }
@@ -98,6 +101,61 @@ export default function Room({ params }: { params: { room_id: number } }) {
       return () => clearInterval(intervalId);
     }
   }, [roomDetails]);
+
+  //Web socket connection
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("room-" + roomId)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "File",
+        },
+        (payload) => {
+          console.log(payload);
+          if (payload.eventType == "DELETE") {
+            const newFiles = files.filter((file) => file.id !== payload.old.id);
+            console.log("newFiles", newFiles);
+            setFiles(files.filter((file) => file.id !== payload.old.id));
+          } else {
+            setFiles([...files, payload.new]);
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [roomId, files]);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("room-number-" + roomId)
+      .on(
+        "postgres_changes",
+        {
+          event: "DELETE",
+          schema: "public",
+          table: "Room",
+        },
+        (payload) => {
+          console.log("room deleted", payload);
+          if (payload.old.roomId == roomId) {
+            router.replace("/");
+            return;
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [roomId, router]);
 
   if (!roomDetails) {
     return <Loading />;
@@ -152,7 +210,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
         <div className="flex w-full items-center justify-center px-4">
           <UploadDropzone
             onUploadBegin={() =>
-              toast.loading("Uploading files...", { id: "upload" })
+              toast.loading("Uploading files...", { id: "upload-files" })
             }
             onBeforeUploadBegin={(files) => checkExistence(files)}
             appearance={{

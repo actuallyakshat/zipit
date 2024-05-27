@@ -30,9 +30,11 @@ export default function FileCard({
         <h4 className="text-sm text-zinc-600">{formatBytes(file.size)}</h4>
       </div>
       <div className="ml-auto flex items-center gap-2">
-        <Link href={file.mediaAccessLink} target="_blank">
-          <DownloadIcon className="size-5" />
-        </Link>
+        {file.mediaAccessLink && (
+          <Link href={file.mediaAccessLink} target="_blank">
+            <DownloadIcon className="size-5" />
+          </Link>
+        )}
         <button
           disabled={deleteLoading}
           onClick={() => setShowConfirmDelete(true)}
