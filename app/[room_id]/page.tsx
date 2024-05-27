@@ -13,8 +13,7 @@ import {
   refreshRoomFiles,
 } from "./_actions/actions";
 import FileCard from "./_components/FileCard";
-import { checkRoomExists } from "../_actions/actions";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export default function Room({ params }: { params: { room_id: number } }) {
   const router = useRouter();
@@ -101,7 +100,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
   return (
     <div className="appbg min-h-screen w-full">
-      <div className="mx-auto max-w-screen-xl pt-24 text-center">
+      <div className="mx-auto max-w-screen-xl pt-20 text-center">
         <h1 className="text-5xl font-black">Zipit</h1>
         <div className="flex w-full flex-col items-center justify-center rounded-lg px-4 pb-8 pt-3">
           <h2 className="mb-3 text-lg font-medium text-zinc-500">
@@ -174,7 +173,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
           />
         </div>
       </div>
-      <div className="container mx-auto mt-5 px-4">
+      <div className="mx-auto mt-5 max-w-screen-xl px-4 pb-16">
         <h2 className="mb-3 text-3xl font-extrabold">Files</h2>
         {files.length == 0 && (
           <p className="text-lg font-medium text-zinc-600">

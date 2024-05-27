@@ -5,8 +5,6 @@ export const revalidate = 0;
 export async function GET(req: NextRequest) {
   try {
     const tenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-    console.log("tenMinutesAgo:", tenMinutesAgo);
-
     const expiredRooms = await prisma.room.findMany({
       where: {
         createdAt: {
@@ -14,8 +12,6 @@ export async function GET(req: NextRequest) {
         },
       },
     });
-
-    console.log("expiredRooms:", expiredRooms);
 
     const roomIds = expiredRooms.map((room: Room) => room.id);
     if (roomIds.length > 0) {
@@ -26,9 +22,7 @@ export async function GET(req: NextRequest) {
           },
         },
       });
-
-      console.log("Deleted roomIds:", roomIds);
-      console.log("Delete result:", deleteResult);
+      console.log("Deleted", deleteResult.count, "rooms.");
     } else {
       console.log("No expired rooms found.");
     }

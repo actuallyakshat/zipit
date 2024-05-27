@@ -1,35 +1,6 @@
-import {
-  ArrowRightIcon,
-  LockIcon,
-  UserIcon,
-  WaypointsIcon,
-} from "lucide-react";
 import Navbar from "./_components/Navbar";
 import Footer from "./_components/Footer";
 import Modals from "./_components/Modals";
-const features = [
-  {
-    id: 1,
-    title: "Free and Open Source",
-    icon: <WaypointsIcon />,
-    description:
-      "Zipit is completely free and open source. You can use it for free and contribute to the project.",
-  },
-  {
-    id: 2,
-    title: "No Account Required",
-    icon: <UserIcon />,
-    description:
-      "Zipit doesn't require any signups. You can create a room and share it with anyone.",
-  },
-  {
-    id: 3,
-    title: "Secure",
-    icon: <LockIcon />,
-    description:
-      "No file is saved beyond the lifetime of a room, so you don't have to worry about your files being spread around the internet.",
-  },
-];
 
 export default function Home() {
   return (
@@ -37,7 +8,7 @@ export default function Home() {
       <Navbar />
       <div className="flex flex-col items-center justify-center">
         <div className="">
-          <span className="mx-auto flex w-fit items-center gap-2 rounded-full border border-primary/30 px-4 py-2 font-mono text-sm font-medium backdrop-blur-sm">
+          <span className="z-[1] mx-auto flex w-fit items-center gap-2 rounded-full border border-primary/30 px-4 py-2 font-mono text-sm font-medium backdrop-blur-sm">
             It&apos;s completely free!
           </span>
           <h1 className="mt-2 max-w-xl text-center text-5xl font-extrabold leading-none tracking-tight text-blue-950 lg:text-6xl">
