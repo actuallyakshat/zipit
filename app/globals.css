@@ -34,6 +34,10 @@ input[type="number"] {
   @apply rounded-lg border bg-red-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700;
 }
 
+.ghost-button {
+  @apply rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-200;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -60,4 +64,39 @@ input[type="number"] {
 
 .modal-content {
   animation: slideIn 0.3s;
+}
+
+/* custom checkbox */
+.custom-checkbox {
+  display: inline-block;
+  min-width: 20px;
+  max-width: 20px;
+  height: 20px;
+  background-color: white;
+  border: 2px solid #ccc;
+  border-radius: 3px;
+  position: relative;
+  cursor: pointer;
+}
+
+.custom-checkbox.checked {
+  background-color: var(--primary);
+  border-color: var(--primary);
+}
+
+.custom-checkbox::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 5px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  display: none;
+}
+
+.custom-checkbox.checked::after {
+  display: block;
 }

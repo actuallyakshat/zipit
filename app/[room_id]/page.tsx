@@ -7,14 +7,16 @@ import Loading from "./loading";
 import { Copy } from "lucide-react";
 import toast from "react-hot-toast";
 import {
-  appendUploadedFile,
   checkBeforeUpload,
+  deleteFile,
   getRoomDetails,
   refreshRoomFiles,
 } from "./_actions/actions";
 import FileCard from "./_components/FileCard";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/supabase";
+import JSZip from "jszip";
+import MultiDeletionConfirmationModal from "./_components/MultiDeletionConfirmationModal";
 
 export default function Room({ params }: { params: { room_id: number } }) {
   const router = useRouter();
@@ -24,6 +26,13 @@ export default function Room({ params }: { params: { room_id: number } }) {
   const [remainingTime, setRemainingTime] = React.useState("00:00");
   const urlPrefix = "https://justzipit.vercel.app/";
   const [files, setFiles] = React.useState<any[]>([]);
+  const [selectedFiles, setSelectedFiles] = React.useState<any[]>([]);
+  const [showConfirmMultiDelete, setShowConfirmMultiDelete] =
+    React.useState(false);
+
+  useEffect(() => {
+    console.log("selectedFiles", selectedFiles);
+  }, [selectedFiles]);
 
   async function getDetails() {
     try {
@@ -45,7 +54,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
   async function handleUploadComplete(data: any) {
     try {
-      const files = await appendUploadedFile(roomId, data);
+      console.log("Data from uploadthing", data);
       const newFiles = await refreshRoomFiles(roomId);
       setFiles(newFiles);
       toast.success("File uploaded successfully", { id: "upload-files" });
@@ -66,6 +75,50 @@ export default function Room({ params }: { params: { room_id: number } }) {
       }
     } catch (e) {
       return [];
+    }
+  }
+
+  async function handleDeleteSelectedFiles() {
+    try {
+      if (selectedFiles.length == 0) return;
+      // Make an API call to delete files
+      const deleteIds = selectedFiles.map((file) => file.mediaId);
+      await deleteFile(deleteIds);
+      const newFiles = await refreshRoomFiles(roomId);
+      setFiles(newFiles);
+      toast.success("Selected files deleted successfully");
+      setShowConfirmMultiDelete(false);
+      setSelectedFiles([]);
+    } catch (error) {
+      console.error("Error deleting selected files", error);
+      toast.error("Failed to delete selected files");
+    }
+  }
+
+  async function handleDownloadSelectedFiles() {
+    try {
+      if (selectedFiles.length == 0) return;
+      const zip = new JSZip();
+
+      // Fetch the file data and add to zip
+      for (let fileItem of selectedFiles) {
+        const file = files.find((file) => file.id === fileItem.id);
+        const response = await fetch(file.url);
+        const blob = await response.blob();
+        zip.file(file.name, blob);
+      }
+
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "files.zip";
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success("Files downloaded as zip");
+    } catch (error) {
+      console.error("Error downloading files as zip", error);
+      toast.error("Failed to download files as zip");
     }
   }
 
@@ -131,6 +184,14 @@ export default function Room({ params }: { params: { room_id: number } }) {
       supabase.removeChannel(channel);
     };
   }, [roomId, files]);
+
+  function selectAllHandler() {
+    setSelectedFiles(files);
+  }
+
+  function deselectAllHandler() {
+    setSelectedFiles([]);
+  }
 
   if (!roomDetails) {
     return <Loading />;
@@ -212,24 +273,65 @@ export default function Room({ params }: { params: { room_id: number } }) {
         </div>
       </div>
       <div className="mx-auto mt-5 max-w-screen-xl px-4 pb-16">
-        <h2 className="mb-3 text-3xl font-extrabold">Files</h2>
-        {files.length == 0 && (
-          <p className="text-lg font-medium text-zinc-600">
-            No files uploaded yet
-          </p>
-        )}
-        {files.length > 0 && (
-          <div className="grid grid-cols-2 gap-2 pb-16 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {files.map((file) => (
-              <FileCard
-                key={file.id}
-                file={file}
-                roomId={roomId}
-                setFiles={setFiles}
+        <div className="flex w-full items-center justify-between">
+          <h2 className="mb-3 text-3xl font-extrabold">Files</h2>
+
+          {selectedFiles.length > 0 && (
+            <>
+              <MultiDeletionConfirmationModal
+                showConfirmDelete={showConfirmMultiDelete}
+                setShowConfirmDelete={setShowConfirmMultiDelete}
+                deleteFiles={handleDeleteSelectedFiles}
               />
-            ))}
+              <div className="space-x-3">
+                <button
+                  onClick={() => setShowConfirmMultiDelete(true)}
+                  className="destructive-button"
+                >
+                  Delete Selected
+                </button>
+
+                <button
+                  onClick={handleDownloadSelectedFiles}
+                  className="primary-button"
+                >
+                  Download Selected as Zip
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+        {files.length > 0 && (
+          <div className="my-2 flex w-full items-center justify-end">
+            <button className="ghost-button" onClick={selectAllHandler}>
+              Select all
+            </button>
+            <button className="ghost-button" onClick={deselectAllHandler}>
+              Deselect all
+            </button>
           </div>
         )}
+        <div className="mb-4 flex space-x-4">
+          {files.length == 0 && (
+            <p className="text-lg font-medium text-zinc-600">
+              No files uploaded yet
+            </p>
+          )}
+          {files.length > 0 && (
+            <div className="grid grid-cols-2 gap-2 pb-16 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+              {files.map((file) => (
+                <FileCard
+                  key={file.id}
+                  file={file}
+                  roomId={roomId}
+                  setFiles={setFiles}
+                  selectedFiles={selectedFiles}
+                  setSelectedFiles={setSelectedFiles}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
