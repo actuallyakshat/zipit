@@ -5,8 +5,7 @@ import { utapi } from "@/uploadthingClient";
 export const revalidate = 0;
 export async function GET(req: NextRequest) {
   try {
-    // const tenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
-    const tenMinutesAgo = new Date(Date.now() - 1000);
+    const tenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
     const expiredRooms = await prisma.room.findMany({
       where: {
         createdAt: {
