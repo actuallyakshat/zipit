@@ -312,7 +312,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
             </p>
           )}
           {files.length > 0 && (
-            <div className="grid grid-cols-2 gap-2 pb-16 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-2 pb-16 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
               {files.map((file) => (
                 <FileCard
                   key={file.id}
