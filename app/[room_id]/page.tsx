@@ -161,6 +161,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
           event: "*",
           schema: "public",
           table: "File",
+          filter: `roomId=eq.${roomId}`,
         },
         (payload) => {
           if (payload.eventType == "DELETE") {
