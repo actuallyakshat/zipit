@@ -31,6 +31,25 @@ export default function FileCard({
     }
   };
 
+  async function handleDownloadFile(file: any) {
+    try {
+      const response = await fetch(file.mediaAccessLink);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = file.name;
+      document.body.appendChild(a); // Append to body to ensure it works in all browsers
+      a.click();
+      document.body.removeChild(a); // Clean up
+      URL.revokeObjectURL(url);
+      toast.success("File downloaded");
+    } catch (error) {
+      console.error("Error downloading file", error);
+      toast.error("Failed to download file");
+    }
+  }
+
   useEffect(() => {
     setChecked(selectedFiles.includes(file));
   }, [selectedFiles, setChecked, file]);
@@ -56,10 +75,13 @@ export default function FileCard({
       </div>
       <div className="col-span-1 ml-auto flex items-center gap-2 pr-4">
         {file.mediaAccessLink && (
-          <button onClick={(e) => e.stopPropagation()}>
-            <Link href={file.mediaAccessLink} target="_blank">
-              <DownloadIcon className="size-5" />
-            </Link>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDownloadFile(file);
+            }}
+          >
+            <DownloadIcon className="size-5" />
           </button>
         )}
         <button

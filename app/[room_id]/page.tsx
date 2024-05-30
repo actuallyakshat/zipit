@@ -4,7 +4,7 @@ import { UploadDropzone } from "@/utils/uploadthing";
 import CloseRoomModal from "./CloseRoomModal";
 import Link from "next/link";
 import Loading from "./loading";
-import { Copy } from "lucide-react";
+import { Copy, LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   checkBeforeUpload,
@@ -27,6 +27,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
   const urlPrefix = "https://justzipit.vercel.app/";
   const [files, setFiles] = React.useState<any[]>([]);
   const [selectedFiles, setSelectedFiles] = React.useState<any[]>([]);
+  const [downloadLoading, setDownloadLoading] = React.useState(false);
   const [showConfirmMultiDelete, setShowConfirmMultiDelete] =
     React.useState(false);
 
@@ -93,12 +94,13 @@ export default function Room({ params }: { params: { room_id: number } }) {
   async function handleDownloadSelectedFiles() {
     try {
       if (selectedFiles.length == 0) return;
+      setDownloadLoading(true);
       const zip = new JSZip();
 
       // Fetch the file data and add to zip
       for (let fileItem of selectedFiles) {
         const file = files.find((file) => file.id === fileItem.id);
-        const response = await fetch(file.url);
+        const response = await fetch(file.mediaAccessLink);
         const blob = await response.blob();
         zip.file(file.name, blob);
       }
@@ -107,13 +109,15 @@ export default function Room({ params }: { params: { room_id: number } }) {
       const url = URL.createObjectURL(zipBlob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "files.zip";
+      a.download = `${roomId}-files.zip`;
       a.click();
       URL.revokeObjectURL(url);
       toast.success("Files downloaded as zip");
     } catch (error) {
       console.error("Error downloading files as zip", error);
       toast.error("Failed to download files as zip");
+    } finally {
+      setDownloadLoading(false);
     }
   }
 
@@ -278,7 +282,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
                 setShowConfirmDelete={setShowConfirmMultiDelete}
                 deleteFiles={handleDeleteSelectedFiles}
               />
-              <div className="space-x-3">
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => setShowConfirmMultiDelete(true)}
                   className="destructive-button"
@@ -290,7 +294,11 @@ export default function Room({ params }: { params: { room_id: number } }) {
                   onClick={handleDownloadSelectedFiles}
                   className="primary-button"
                 >
-                  Download Selected as Zip
+                  {downloadLoading ? (
+                    <LoaderCircle className="animate-spin" />
+                  ) : (
+                    "Download Selected as Zip"
+                  )}
                 </button>
               </div>
             </>
