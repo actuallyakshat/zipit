@@ -30,10 +30,6 @@ export default function Room({ params }: { params: { room_id: number } }) {
   const [showConfirmMultiDelete, setShowConfirmMultiDelete] =
     React.useState(false);
 
-  useEffect(() => {
-    console.log("selectedFiles", selectedFiles);
-  }, [selectedFiles]);
-
   async function getDetails() {
     try {
       const room = await getRoomDetails(roomId as number);
@@ -54,7 +50,6 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
   async function handleUploadComplete(data: any) {
     try {
-      console.log("Data from uploadthing", data);
       const newFiles = await refreshRoomFiles(roomId);
       setFiles(newFiles);
       toast.success("File uploaded successfully", { id: "upload-files" });
@@ -168,10 +163,8 @@ export default function Room({ params }: { params: { room_id: number } }) {
           table: "File",
         },
         (payload) => {
-          console.log(payload);
           if (payload.eventType == "DELETE") {
             const newFiles = files.filter((file) => file.id !== payload.old.id);
-            console.log("newFiles", newFiles);
             setFiles(files.filter((file) => file.id !== payload.old.id));
           } else {
             setFiles([...files, payload.new]);
@@ -245,6 +238,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
         <div className="flex w-full items-center justify-center px-4">
           <UploadDropzone
+            input={{ roomId }}
             onUploadBegin={() =>
               toast.loading("Uploading files...", { id: "upload-files" })
             }
