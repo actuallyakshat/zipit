@@ -1,14 +1,12 @@
 "use server";
 import prisma from "@/db";
-import { UTApi } from "uploadthing/server";
+import { utapi } from "@/uploadthingClient";
 interface File {
   key: string;
   name: string;
   url: string;
   size: number;
 }
-
-const utapi = new UTApi();
 
 export async function appendUploadedFile(roomId: number, files: File[]) {
   try {

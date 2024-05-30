@@ -1,17 +1,32 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/db";
 import { Room } from "@prisma/client";
+import { utapi } from "@/uploadthingClient";
 export const revalidate = 0;
 export async function GET(req: NextRequest) {
   try {
-    const tenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    // const tenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+    const tenMinutesAgo = new Date(Date.now() - 1000);
     const expiredRooms = await prisma.room.findMany({
       where: {
         createdAt: {
           lt: tenMinutesAgo,
         },
       },
+      include: {
+        files: true,
+      },
     });
+
+    const filesToDelete: any[] = [];
+    expiredRooms.forEach((room) => {
+      if (room.files) {
+        room.files.forEach((file) => filesToDelete.push(file));
+      }
+    });
+
+    const fileIds = filesToDelete.map((file) => file.mediaId);
+    await utapi.deleteFiles(fileIds);
 
     const roomIds = expiredRooms.map((room: Room) => room.id);
     if (roomIds.length > 0) {
