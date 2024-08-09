@@ -11,6 +11,7 @@ interface File {
 export async function appendUploadedFile(roomId: number, files: File[]) {
   try {
     // Check if the room exists
+    console.log(roomId);
     const existingRoom = await prisma.room.findUnique({
       where: { roomId: roomId },
     });
@@ -24,7 +25,7 @@ export async function appendUploadedFile(roomId: number, files: File[]) {
       data: files.map((file) => ({
         mediaId: file.key,
         mediaAccessLink: file.url,
-        roomId: existingRoom.id,
+        roomId: existingRoom.roomId,
         name: file.name,
         size: file.size,
       })),
@@ -39,6 +40,7 @@ export async function appendUploadedFile(roomId: number, files: File[]) {
 
 export async function refreshRoomFiles(roomId: number) {
   try {
+    console.log(roomId);
     const room = await prisma.room.findUnique({
       where: { roomId: roomId },
     });
@@ -46,10 +48,13 @@ export async function refreshRoomFiles(roomId: number) {
     if (!room) {
       throw new Error("Room not found");
     }
+    console.log(room);
 
     const files = await prisma.file.findMany({
-      where: { roomId: room.id },
+      where: { roomId: room.roomId },
     });
+
+    console.log(files);
 
     return files;
   } catch (e: any) {

@@ -57,7 +57,7 @@ export default function FileCard({
   return (
     <div
       key={file.id}
-      className={`grid grid-cols-4 gap-2 overflow-hidden rounded-lg border bg-gray-50 ${checked ? "border border-primary" : ""}`}
+      className={`col-span-1 grid grid-cols-4 gap-2 overflow-hidden rounded-lg border bg-gray-50 ${checked ? "border border-primary" : ""}`}
     >
       <div
         className="col-span-3 h-full cursor-pointer p-4"

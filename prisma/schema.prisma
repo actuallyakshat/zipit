@@ -23,5 +23,5 @@ model File {
   mediaAccessLink String
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
-  Room            Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  Room            Room     @relation(fields: [roomId], references: [roomId], onDelete: Cascade)
 }

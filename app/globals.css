@@ -35,7 +35,7 @@ input[type="number"] {
 }
 
 .ghost-button {
-  @apply rounded-lg px-4 py-2 text-sm font-medium transition-colors hover:bg-zinc-200;
+  @apply py-2 text-sm font-medium transition-colors hover:underline;
 }
 
 @keyframes fadeIn {

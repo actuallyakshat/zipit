@@ -158,19 +158,19 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
   useEffect(() => {
     const channel = supabase
-      .channel("room-" + roomId)
+      .channel(roomId.toString())
       .on(
         "postgres_changes",
         {
           event: "*",
           schema: "public",
           table: "File",
-          filter: `roomId=eq.${roomId}`,
+          filter: `roomId=eq.${roomId.toString()}`,
         },
         (payload) => {
           if (payload.eventType == "DELETE") {
             const newFiles = files.filter((file) => file.id !== payload.old.id);
-            setFiles(files.filter((file) => file.id !== payload.old.id));
+            setFiles(newFiles);
           } else {
             setFiles([...files, payload.new]);
           }
@@ -272,8 +272,8 @@ export default function Room({ params }: { params: { room_id: number } }) {
         </div>
       </div>
       <div className="mx-auto mt-5 max-w-screen-xl px-4 pb-16">
-        <div className="flex w-full items-center justify-between">
-          <h2 className="mb-3 text-3xl font-extrabold">Files</h2>
+        <div className="flex w-full flex-col justify-between gap-3 md:flex-row md:items-center">
+          <h2 className="text-4xl font-extrabold">Files</h2>
 
           {selectedFiles.length > 0 && (
             <>
@@ -282,7 +282,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
                 setShowConfirmDelete={setShowConfirmMultiDelete}
                 deleteFiles={handleDeleteSelectedFiles}
               />
-              <div className="flex items-center gap-3">
+              <div className="mx-auto flex items-center gap-3 md:mx-0 md:flex">
                 <button
                   onClick={() => setShowConfirmMultiDelete(true)}
                   className="destructive-button"
@@ -305,7 +305,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
           )}
         </div>
         {files.length > 0 && (
-          <div className="my-2 flex w-full items-center justify-end">
+          <div className="my-2 flex w-full items-center gap-6">
             <button className="ghost-button" onClick={selectAllHandler}>
               Select all
             </button>
@@ -321,7 +321,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
             </p>
           )}
           {files.length > 0 && (
-            <div className="grid grid-cols-1 gap-2 pb-16 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
+            <div className="grid grid-cols-1 gap-2 pb-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3">
               {files.map((file) => (
                 <FileCard
                   key={file.id}
