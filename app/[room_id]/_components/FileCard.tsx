@@ -22,6 +22,7 @@ export default function FileCard({
   const [deleteLoading, setDeleteLoading] = React.useState(false);
   const [showConfirmDelete, setShowConfirmDelete] = React.useState(false);
   const [checked, setChecked] = React.useState(selectedFiles.includes(file));
+  const [downloadLoading, setDownloadLoading] = React.useState(false);
   const handleCheckboxChange = (file: any) => {
     setChecked(!checked);
     if (selectedFiles.includes(file)) {
@@ -32,6 +33,7 @@ export default function FileCard({
   };
 
   async function handleDownloadFile(file: any) {
+    setDownloadLoading(true);
     try {
       const response = await fetch(file.mediaAccessLink);
       const blob = await response.blob();
@@ -47,6 +49,8 @@ export default function FileCard({
     } catch (error) {
       console.error("Error downloading file", error);
       toast.error("Failed to download file");
+    } finally {
+      setDownloadLoading(false);
     }
   }
 
@@ -81,7 +85,11 @@ export default function FileCard({
               handleDownloadFile(file);
             }}
           >
-            <DownloadIcon className="size-5" />
+            {downloadLoading ? (
+              <LoaderCircle className="animate-spin" />
+            ) : (
+              <DownloadIcon className="size-5" />
+            )}
           </button>
         )}
         <button

@@ -24,7 +24,7 @@ export default function Home() {
         </h5>
         <Modals />
       </div>
-      <Footer />
+      {/* <Footer /> */}
     </section>
   );
 }
