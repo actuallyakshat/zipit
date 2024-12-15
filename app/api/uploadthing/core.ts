@@ -1,6 +1,5 @@
 import { appendUploadedFile } from "@/app/[room_id]/_actions/actions";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { UploadThingError } from "uploadthing/server";
 import { z } from "zod";
 const f = createUploadthing();
 

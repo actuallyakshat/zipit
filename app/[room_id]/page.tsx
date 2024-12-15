@@ -189,26 +189,28 @@ export default function Room({ params }: RoomProps) {
           event: "*",
           schema: "public",
           table: "File",
-          filter: `roomId=eq.${roomId}`,
         },
         (payload) => {
-          console.log("SOMETHING HAPPENED!", payload);
-
+          // Process events based on event type
           if (payload.eventType === "DELETE") {
             setFiles((currentFiles) =>
               currentFiles.filter((file) => file.id !== payload.old.id),
             );
           } else if (payload.eventType === "INSERT") {
-            setFiles((currentFiles) => {
-              const exists = currentFiles.some(
-                (file) => file.id === payload.new.id,
-              );
-              return exists ? currentFiles : [...currentFiles, payload.new];
-            });
+            if (payload.new.roomId === roomId) {
+              setFiles((currentFiles) => {
+                const exists = currentFiles.some(
+                  (file) => file.id === payload.new.id,
+                );
+                return exists ? currentFiles : [...currentFiles, payload.new];
+              });
+            }
           }
         },
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log("Subscription status:", status);
+      });
 
     return () => {
       supabase.removeChannel(channel);
