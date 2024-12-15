@@ -235,6 +235,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
             </div>
             <CloseRoomModal
               roomId={roomId}
+              fileIds={files.map((file) => file.mediaId)}
               showCloseRoomModal={showCloseRoomModal}
               setShowCloseRoomModal={setShowCloseRoomModal}
             />

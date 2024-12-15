@@ -1,26 +1,34 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 import toast from "react-hot-toast";
-import { deleteRoom } from "./_actions/actions";
+import { deleteFile, deleteRoom } from "./_actions/actions";
 
 export default function CloseRoomModal({
   showCloseRoomModal,
   roomId,
+  fileIds,
   setShowCloseRoomModal,
 }: {
   showCloseRoomModal: boolean;
   roomId: number;
+  fileIds: string[];
   setShowCloseRoomModal: (value: boolean) => void;
 }) {
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string>("");
   const router = useRouter();
+
+  useEffect(() => {
+    console.log(fileIds);
+  }, [fileIds]);
+
   const submitHandler = async (e: any) => {
     e.preventDefault();
     try {
       setLoading(true);
       toast.loading("Closing room", { id: "close-room" });
+      await deleteFile(fileIds);
       await deleteRoom(roomId);
       setLoading(false);
       toast.success("Room closed", { id: "close-room" });
