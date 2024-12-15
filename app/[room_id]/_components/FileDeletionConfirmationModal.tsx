@@ -27,7 +27,7 @@ export default function FileDeletionConfirmationModal({
       setFiles(newFiles);
       toast.success("File deleted", { id: "delete-file-toast" });
     } catch (e) {
-      console.log(e);
+      console.error("Error deleting file");
       toast.error("Error deleting file", { id: "delete-file-toast" });
     } finally {
       setLoading(false);

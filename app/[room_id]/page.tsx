@@ -1,105 +1,129 @@
 "use client";
-import React, { useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { Copy, LoaderCircle } from "lucide-react";
+import JSZip from "jszip";
+import toast from "react-hot-toast";
+
+// Component Imports
 import { UploadDropzone } from "@/utils/uploadthing";
 import CloseRoomModal from "./CloseRoomModal";
-import Link from "next/link";
+import FileCard from "./_components/FileCard";
 import Loading from "./loading";
-import { Copy, LoaderCircle } from "lucide-react";
-import toast from "react-hot-toast";
+import MultiDeletionConfirmationModal from "./_components/MultiDeletionConfirmationModal";
+
+// Action Imports
 import {
   checkBeforeUpload,
   deleteFile,
   getRoomDetails,
   refreshRoomFiles,
 } from "./_actions/actions";
-import FileCard from "./_components/FileCard";
-import { useRouter } from "next/navigation";
+
+// Supabase Import
 import { supabase } from "@/supabase";
-import JSZip from "jszip";
-import MultiDeletionConfirmationModal from "./_components/MultiDeletionConfirmationModal";
 
-export default function Room({ params }: { params: { room_id: number } }) {
+// Constants
+const URL_PREFIX = "https://justzipit.vercel.app/";
+const ROOM_EXPIRY_TIME = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+interface RoomProps {
+  params: { room_id: number };
+}
+
+export default function Room({ params }: RoomProps) {
   const router = useRouter();
-  const [roomId, setRoomId] = React.useState<number>(Number(params.room_id));
-  const [showCloseRoomModal, setShowCloseRoomModal] = React.useState(false);
-  const [roomDetails, setRoomDetails] = React.useState<any>(null);
-  const [remainingTime, setRemainingTime] = React.useState("00:00");
-  const urlPrefix = "https://justzipit.vercel.app/";
-  const [files, setFiles] = React.useState<any[]>([]);
-  const [selectedFiles, setSelectedFiles] = React.useState<any[]>([]);
-  const [downloadLoading, setDownloadLoading] = React.useState(false);
-  const [showConfirmMultiDelete, setShowConfirmMultiDelete] =
-    React.useState(false);
+  const roomId = Number(params.room_id);
 
-  async function getDetails() {
+  // State Management
+  const [roomDetails, setRoomDetails] = useState<any>(null);
+  const [remainingTime, setRemainingTime] = useState("00:00");
+  const [files, setFiles] = useState<any[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<any[]>([]);
+  const [downloadLoading, setDownloadLoading] = useState(false);
+  const [showCloseRoomModal, setShowCloseRoomModal] = useState(false);
+  const [showConfirmMultiDelete, setShowConfirmMultiDelete] = useState(false);
+
+  // Fetch Room Details
+  const fetchRoomDetails = useCallback(async () => {
     try {
-      const room = await getRoomDetails(roomId as number);
+      const room = await getRoomDetails(roomId);
       if (!room) {
-        toast.error("Room does not exists", { id: "room-details" });
+        toast.error("Room does not exist", { id: "room-details" });
         router.replace("/");
         return;
       }
       setRoomDetails(room);
       setFiles(room.files);
-    } catch (e: any) {
-      console.log(e);
+    } catch (error) {
+      console.error(error);
       toast.error("Something went wrong. Are you sure this room exists?", {
         id: "room-details",
       });
     }
-  }
+  }, [roomId, router]);
 
-  async function handleUploadComplete(data: any) {
+  // File Upload Handlers
+  const handleUploadComplete = useCallback(async () => {
     try {
       const newFiles = await refreshRoomFiles(roomId);
       setFiles(newFiles);
       toast.success("File uploaded successfully", { id: "upload-files" });
-    } catch (e) {
-      console.log(e);
+    } catch (error) {
+      console.error(error);
     }
-  }
+  }, [roomId]);
 
-  async function checkExistence(files: any[]) {
-    try {
-      toast.loading("Checking room's validity...", { id: "upload-files" });
-      const check = await checkBeforeUpload(roomId);
-      if (check) return files;
-      else {
-        toast.error("Room does not exists anymore", { id: "upload-files" });
-        router.replace("/");
+  const checkRoomExistence = useCallback(
+    async (files: any[]) => {
+      try {
+        toast.loading("Checking room's validity...", { id: "upload-files" });
+        const isValid = await checkBeforeUpload(roomId);
+
+        if (!isValid) {
+          toast.error("Room does not exist anymore", { id: "upload-files" });
+          router.replace("/");
+          return [];
+        }
+        return files;
+      } catch {
         return [];
       }
-    } catch (e) {
-      return [];
-    }
-  }
+    },
+    [roomId, router],
+  );
 
-  async function handleDeleteSelectedFiles() {
+  // File Deletion Handlers
+  const handleDeleteSelectedFiles = useCallback(async () => {
+    if (selectedFiles.length === 0) return;
+
     try {
-      if (selectedFiles.length == 0) return;
-      // Make an API call to delete files
       const deleteIds = selectedFiles.map((file) => file.mediaId);
       await deleteFile(deleteIds);
+
       const newFiles = await refreshRoomFiles(roomId);
       setFiles(newFiles);
+
       toast.success("Selected files deleted successfully");
       setShowConfirmMultiDelete(false);
       setSelectedFiles([]);
     } catch (error) {
-      console.error("Error deleting selected files", error);
+      console.error("Error deleting selected files");
       toast.error("Failed to delete selected files");
     }
-  }
+  }, [roomId, selectedFiles]);
 
-  async function handleDownloadSelectedFiles() {
+  // File Download Handler
+  const handleDownloadSelectedFiles = useCallback(async () => {
+    if (selectedFiles.length === 0) return;
+
     try {
-      if (selectedFiles.length == 0) return;
       setDownloadLoading(true);
       const zip = new JSZip();
 
-      // Fetch the file data and add to zip
       for (let fileItem of selectedFiles) {
-        const file = files.find((file) => file.id === fileItem.id);
+        const file = files.find((f) => f.id === fileItem.id);
         const response = await fetch(file.mediaAccessLink);
         const blob = await response.blob();
         zip.file(file.name, blob);
@@ -107,55 +131,55 @@ export default function Room({ params }: { params: { room_id: number } }) {
 
       const zipBlob = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(zipBlob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${roomId}-files.zip`;
-      a.click();
+
+      const downloadLink = document.createElement("a");
+      downloadLink.href = url;
+      downloadLink.download = `${roomId}-files.zip`;
+      downloadLink.click();
+
       URL.revokeObjectURL(url);
       toast.success("Files downloaded as zip");
     } catch (error) {
-      console.error("Error downloading files as zip", error);
+      console.error("Error downloading files as zip");
       toast.error("Failed to download files as zip");
     } finally {
       setDownloadLoading(false);
     }
-  }
+  }, [files, roomId, selectedFiles]);
 
+  // Room Expiry Timer
   useEffect(() => {
-    if (roomId) {
-      getDetails();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomId]);
+    if (!roomDetails) return;
 
-  useEffect(() => {
-    if (roomDetails) {
-      const roomCreationTime = new Date(roomDetails.createdAt).getTime();
-      const expiryTime = roomCreationTime + 15 * 60 * 1000; // 10 minutes in milliseconds
-      const updateRemainingTime = () => {
-        const currentTime = Date.now();
-        const timeLeft = expiryTime - currentTime;
-        if (timeLeft <= 0) {
-          setRemainingTime("This room is scheduled for deletion");
-          return;
-        }
-        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-        setRemainingTime(
-          `This room expires in: ${minutes.toString().padStart(2, "0")}:${seconds
-            .toString()
-            .padStart(2, "0")}`,
-        );
-      };
+    const roomCreationTime = new Date(roomDetails.createdAt).getTime();
+    const expiryTime = roomCreationTime + ROOM_EXPIRY_TIME;
 
-      updateRemainingTime();
-      const intervalId = setInterval(updateRemainingTime, 1000);
-      return () => clearInterval(intervalId);
-    }
+    const updateRemainingTime = () => {
+      const currentTime = Date.now();
+      const timeLeft = expiryTime - currentTime;
+
+      if (timeLeft <= 0) {
+        setRemainingTime("This room is scheduled for deletion");
+        return;
+      }
+
+      const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+      setRemainingTime(
+        `This room expires in: ${minutes.toString().padStart(2, "0")}:${seconds
+          .toString()
+          .padStart(2, "0")}`,
+      );
+    };
+
+    updateRemainingTime();
+    const intervalId = setInterval(updateRemainingTime, 1000);
+
+    return () => clearInterval(intervalId);
   }, [roomDetails]);
 
-  //Web socket connection
-
+  // Supabase Real-time Listener
   useEffect(() => {
     const channel = supabase
       .channel(roomId.toString())
@@ -165,14 +189,22 @@ export default function Room({ params }: { params: { room_id: number } }) {
           event: "*",
           schema: "public",
           table: "File",
-          filter: `roomId=eq.${roomId.toString()}`,
+          filter: `roomId=eq.${roomId}`,
         },
         (payload) => {
-          if (payload.eventType == "DELETE") {
-            const newFiles = files.filter((file) => file.id !== payload.old.id);
-            setFiles(newFiles);
-          } else {
-            setFiles([...files, payload.new]);
+          console.log("SOMETHING HAPPENED!", payload);
+
+          if (payload.eventType === "DELETE") {
+            setFiles((currentFiles) =>
+              currentFiles.filter((file) => file.id !== payload.old.id),
+            );
+          } else if (payload.eventType === "INSERT") {
+            setFiles((currentFiles) => {
+              const exists = currentFiles.some(
+                (file) => file.id === payload.new.id,
+              );
+              return exists ? currentFiles : [...currentFiles, payload.new];
+            });
           }
         },
       )
@@ -181,19 +213,19 @@ export default function Room({ params }: { params: { room_id: number } }) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [roomId, files]);
+  }, [roomId]);
 
-  function selectAllHandler() {
-    setSelectedFiles(files);
-  }
+  // Initial Room Details Fetch
+  useEffect(() => {
+    fetchRoomDetails();
+  }, [fetchRoomDetails]);
 
-  function deselectAllHandler() {
-    setSelectedFiles([]);
-  }
+  // File Selection Handlers
+  const selectAllHandler = () => setSelectedFiles(files);
+  const deselectAllHandler = () => setSelectedFiles([]);
 
-  if (!roomDetails) {
-    return <Loading />;
-  }
+  // Loading State
+  if (!roomDetails) return <Loading />;
 
   return (
     <div className="appbg min-h-screen w-full">
@@ -209,17 +241,17 @@ export default function Room({ params }: { params: { room_id: number } }) {
               <h3 className="font-medium">
                 URL:{" "}
                 <Link
-                  href={`${urlPrefix}${roomId}`}
+                  href={`${URL_PREFIX}${roomId}`}
                   target="_blank"
                   className="hover:underline"
                 >
-                  {`${urlPrefix}${roomId}`}
+                  {`${URL_PREFIX}${roomId}`}
                 </Link>
               </h3>
               <button
                 onClick={() => {
                   toast.success("Copied to clipboard");
-                  navigator.clipboard.writeText(`${urlPrefix}${roomId}`);
+                  navigator.clipboard.writeText(`${URL_PREFIX}${roomId}`);
                 }}
               >
                 <Copy className="size-4 transition-colors hover:text-black/60" />
@@ -248,7 +280,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
             onUploadBegin={() =>
               toast.loading("Uploading files...", { id: "upload-files" })
             }
-            onBeforeUploadBegin={(files) => checkExistence(files)}
+            onBeforeUploadBegin={(files) => checkRoomExistence(files)}
             appearance={{
               label: {
                 color: "var(--primary)",
@@ -267,7 +299,7 @@ export default function Room({ params }: { params: { room_id: number } }) {
               },
             }}
             endpoint="allFilesUploader"
-            onClientUploadComplete={(data) => handleUploadComplete(data)}
+            onClientUploadComplete={(data) => handleUploadComplete()}
             onUploadError={(err) => toast.error(err.message)}
           />
         </div>

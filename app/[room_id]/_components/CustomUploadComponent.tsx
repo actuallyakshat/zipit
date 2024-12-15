@@ -19,7 +19,7 @@ function CustomUploadComponent() {
 
       const data = await response.json();
     } catch (error) {
-      console.error("Upload failed:", error);
+      console.error("Upload failed:");
     }
   };
 

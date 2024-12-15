@@ -19,23 +19,21 @@ export default function CloseRoomModal({
   const [error, setError] = React.useState<string>("");
   const router = useRouter();
 
-  useEffect(() => {
-    console.log(fileIds);
-  }, [fileIds]);
-
   const submitHandler = async (e: any) => {
     e.preventDefault();
     try {
       setLoading(true);
       toast.loading("Closing room", { id: "close-room" });
-      await deleteFile(fileIds);
+      if (fileIds.length > 0) {
+        await deleteFile(fileIds);
+      }
       await deleteRoom(roomId);
       setLoading(false);
       toast.success("Room closed", { id: "close-room" });
       setShowCloseRoomModal(false);
       router.push("/");
     } catch (e: any) {
-      console.log("error", e);
+      console.error("We couldn't close the room.");
       setError("Something went wrong");
       toast.error("We couldn't close the room.", {
         id: "close-room",

@@ -11,7 +11,6 @@ interface File {
 export async function appendUploadedFile(roomId: number, files: File[]) {
   try {
     // Check if the room exists
-    console.log(roomId);
     const existingRoom = await prisma.room.findUnique({
       where: { roomId: roomId },
     });
@@ -33,14 +32,13 @@ export async function appendUploadedFile(roomId: number, files: File[]) {
 
     return createdFiles;
   } catch (e: any) {
-    console.log(e.message);
+    console.error(e.message);
     throw e;
   }
 }
 
 export async function refreshRoomFiles(roomId: number) {
   try {
-    console.log(roomId);
     const room = await prisma.room.findUnique({
       where: { roomId: roomId },
     });
@@ -48,17 +46,14 @@ export async function refreshRoomFiles(roomId: number) {
     if (!room) {
       throw new Error("Room not found");
     }
-    console.log(room);
 
     const files = await prisma.file.findMany({
       where: { roomId: room.roomId },
     });
 
-    console.log(files);
-
     return files;
   } catch (e: any) {
-    console.log(e.message);
+    console.error(e.message);
     throw e;
   }
 }
@@ -83,7 +78,7 @@ export async function getRoomDetails(roomId: number) {
     }
     return room;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw e;
   }
 }
@@ -106,7 +101,7 @@ export async function deleteFile(fileIds: string[]) {
     });
     await utapi.deleteFiles(fileIds);
   } catch (e: any) {
-    console.log(e.message);
+    console.error(e.message);
     throw e;
   }
 }
@@ -142,7 +137,7 @@ export async function deleteRoom(roomId: number) {
 
     return true;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw e;
   }
 }
@@ -159,7 +154,7 @@ export async function checkBeforeUpload(roomId: number) {
     }
     return true;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw e;
   }
 }

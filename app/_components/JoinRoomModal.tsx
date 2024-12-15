@@ -33,7 +33,7 @@ export default function JoinRoomModal({
         id: "find-room",
       });
       setError("Something went wrong.");
-      console.log(e);
+      console.error(e);
     } finally {
       setLoading(false);
     }

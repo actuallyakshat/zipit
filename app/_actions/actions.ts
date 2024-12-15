@@ -24,7 +24,7 @@ export async function createRoom() {
     });
     return newRoom;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw e;
   }
 }
@@ -44,7 +44,7 @@ export async function checkRoomExists(roomId: number) {
     }
     return true;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     throw e;
   }
 }

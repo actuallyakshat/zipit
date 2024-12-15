@@ -27,7 +27,7 @@ export default function CreateRoomModal({
       setSuccess(true);
       router.push(`/${newRoom.roomId}`);
     } catch (e: any) {
-      console.log("error", e);
+      console.error("We couldn't create a room. Please try again later.");
       setError("We couldn't create a room. Please try again later.");
     } finally {
       setLoading(false);

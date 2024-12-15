@@ -47,7 +47,7 @@ export default function FileCard({
       URL.revokeObjectURL(url);
       toast.success("File downloaded");
     } catch (error) {
-      console.error("Error downloading file", error);
+      console.error("Error downloading file");
       toast.error("Failed to download file");
     } finally {
       setDownloadLoading(false);
