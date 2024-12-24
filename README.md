@@ -9,6 +9,7 @@ Zipit allows you to seamlessly share files from any device. It's a super conveni
      UPLOADTHING_APP_ID=your_uploadthing_app_id"
      UPLOADTHING_SECRET="your_uploadthing_secret"
      DATABASE_URL="supabase_postgres_db_with_realtime"
+     DIRECT_URL="supabase_postgres_direct_url"
      NEXT_PUBLIC_SUPABASE_URL
      NEXT_PUBLIC_SUPABASE_ANON_KEY
      ```
